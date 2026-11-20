@@ -1,36 +1,59 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# araCaldes · Plataforma de trobades
 
-## Getting Started
+Web per gestionar les trobades obertes d'araCaldes (xerrades divulgatives i trobades de barris):
+properes trobades, inscripció presencial o en línia, aportacions moderades, emissió en directe,
+mode lectura i historial.
 
-First, run the development server:
+**Stack:** Next.js 16 (App Router) · Tailwind CSS 4 · Supabase (PostgreSQL + Auth) · Vercel.
 
-```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
+## Estructura
+
+```
+src/app/(public)/        Web pública: /, /trobades/[slug], /historial, /privadesa
+src/app/admin/           Panell: login, trobades, inscripcions, aportacions
+src/app/admin/lectura/   Mode lectura (pantalla completa per al torn de preguntes)
+src/app/actions.ts       Inscripcions i aportacions (captcha + límit + validació)
+src/lib/                 Supabase, autenticació, dates (hora de Caldes), tipus
+supabase/schema.sql      Taules, regles i RLS
+supabase/seed.sql        Dades fictícies per a la demo
+supabase/tests/          Proves de seguretat de la BD (Postgres local)
+docs/                    Sistema de disseny
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+## Seguretat, en una frase
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+El públic només **llegeix** trobades publicades. Les inscripcions i aportacions passen pel servidor
+(captcha, límit d'enviaments, camp parany i validació) i les desa amb la `service_role`. Les dades
+personals només les veuen els usuaris de la taula `admins`. A més, la BD rebutja per si sola
+inscripcions a trobades tancades o plenes, sense consentiment o duplicades.
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+## Posada en marxa
 
-## Learn More
+1. **Supabase**: crea un projecte a la **regió UE**. A *SQL Editor* executa `supabase/schema.sql`
+   i, per a la demo, `supabase/seed.sql`.
+2. **Primer administrador**: a *Authentication → Users → Add user* crea l'usuari (correu i
+   contrasenya, amb *Auto Confirm*). Després, a *SQL Editor*:
+   ```sql
+   insert into admins (user_id, nom)
+   select id, 'Janai' from auth.users where email = 'el-teu-correu@exemple.cat';
+   ```
+3. **Desactiva el registre públic**: *Authentication → Sign In / Providers →* desactiva
+   *Allow new users to sign up*. Només entren els usuaris que creïs tu.
+4. **Variables d'entorn**: copia `.env.example` a `.env.local` i omple-les.
+5. `npm install` i `npm run dev` → http://localhost:3000 (panell: /admin).
+6. **Vercel**: importa el repositori, posa les mateixes variables d'entorn i desplega.
 
-To learn more about Next.js, take a look at the following resources:
+## Abans de passar de demo a producció
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+- [ ] Decisions de la presidència: dades que es recullen, termini de conservació, correus de confirmació.
+- [ ] Text de `/privadesa` validat.
+- [ ] Turnstile configurat (`TURNSTILE_SECRET_KEY`); sense clau i fora del mode demo, els formularis es rebutgen.
+- [ ] Límit d'enviaments persistent (Upstash Redis): l'actual és en memòria per instància.
+- [ ] Purga automàtica programada amb `pg_cron` (vegeu `purgar_dades_personals` a `schema.sql`).
+- [ ] Pla de Supabase: el gratuït pausa projectes inactius; comprova-ho o programa un ping.
+- [ ] `NEXT_PUBLIC_DEMO_MODE=false` i subdomini propi (p. ex. `trobades.aracaldes.cat`).
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+## Proves
 
-## Deploy on Vercel
-
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
-
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+- BD: `bash supabase/tests/run.sh` (necessita Postgres 16 local). 17 proves de RLS i regles.
+- Web: `npm run build` (tipus i compilació).

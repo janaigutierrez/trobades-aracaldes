@@ -1,26 +1,51 @@
 @import "tailwindcss";
 
-:root {
-  --background: #ffffff;
-  --foreground: #171717;
+/* Sistema de disseny extret d'aracaldes.cat (tema Hestia) amb la paleta del logo.
+   Vegeu docs/sistema-disseny.md */
+@theme {
+  --color-fons: #e5e5e5;
+  --color-tinta: #3c4858;
+  --color-tinta-suau: #6b7280;
+  --color-gris: #999999;
+  --color-nav: #555555;
+  --color-peu: #323437;
+  --color-corall: #e85858;        /* decoratiu: vores, icones */
+  --color-corall-fort: #c94444;   /* botons amb text blanc (contrast 4,8:1) */
+  --color-corall-clar: #fdecec;
+
+  --font-sans: "Roboto", Helvetica, Arial, sans-serif;
+  --font-slab: "Roboto Slab", "Times New Roman", serif;
+
+  --radius-panell: 6px;
+  --radius-petit: 3px;
+
+  --shadow-panell: 0 16px 24px 2px rgba(0,0,0,.14), 0 6px 30px 5px rgba(0,0,0,.12), 0 8px 10px -5px rgba(0,0,0,.2);
+  --shadow-imatge: 0 16px 38px -12px rgba(0,0,0,.56), 0 4px 25px 0 rgba(0,0,0,.12), 0 8px 10px -5px rgba(0,0,0,.2);
+  --shadow-nav: 0 1px 10px -6px rgba(0,0,0,.42), 0 1px 10px 0 rgba(0,0,0,.12), 0 4px 5px -2px rgba(0,0,0,.1);
 }
 
-@theme inline {
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
-}
-
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
-  }
-}
+html { scroll-behavior: smooth; }
+@media (prefers-reduced-motion: reduce) { html { scroll-behavior: auto; } }
 
 body {
-  background: var(--background);
-  color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+  background: var(--color-fons);
+  color: var(--color-tinta);
+  font-family: var(--font-sans);
+  font-size: 16px;
+  line-height: 1.6;
+  -webkit-font-smoothing: antialiased;
 }
+
+h1, h2, h3 { font-family: var(--font-slab); font-weight: 700; color: var(--color-tinta); line-height: 1.3; }
+
+:focus-visible { outline: 3px solid var(--color-corall-fort); outline-offset: 2px; }
+
+@utility etiqueta { @apply text-xs font-medium uppercase tracking-wide text-corall-fort; }
+@utility btn { @apply inline-flex items-center justify-center gap-2 rounded-petit px-5 py-2.5 text-sm font-medium uppercase tracking-wide transition-colors disabled:opacity-60; }
+@utility btn-primari { @apply btn bg-corall-fort text-white hover:bg-[#b33b3b]; }
+@utility btn-secundari { @apply btn border border-tinta/25 bg-white text-tinta hover:bg-fons/60; }
+@utility btn-fosc { @apply btn bg-peu text-white hover:bg-black; }
+@utility camp { @apply mt-1 block w-full rounded-petit border border-tinta/25 bg-white px-3 py-2 text-base text-tinta placeholder:text-gris focus:border-corall-fort focus:outline-none focus:ring-2 focus:ring-corall-fort/30; }
+@utility label { @apply block text-sm font-medium text-tinta; }
+
+.prosa p + p { margin-top: 0.75rem; }
