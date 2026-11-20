@@ -8,7 +8,7 @@ export default async function Home() {
   return (
     <>
       <Hero
-        etiqueta="araCaldes"
+        etiqueta="Caldes de Montbui"
         titol="Trobades obertes"
         subtitol="Xerrades divulgatives i trobades de barris per parlar de Caldes amb qui hi viu. Inscriu-t'hi, segueix-les en directe o envia'ns la teva pregunta."
       />
