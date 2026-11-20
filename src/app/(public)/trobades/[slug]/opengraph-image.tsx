@@ -4,7 +4,7 @@ import { dataLlarga, hora } from "@/lib/format";
 import { TIPUS_LABEL, type Trobada } from "@/lib/types";
 
 export const size = OG_SIZE;
-export const contentType = "image/png";
+export const contentType = "image/jpeg";
 export const alt = "Trobada oberta d'araCaldes";
 
 export default async function Image({ params }: { params: Promise<{ slug: string }> }) {

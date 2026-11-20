@@ -1,6 +1,7 @@
 import { ImageResponse } from "next/og";
 import { readFile } from "node:fs/promises";
 import { join } from "node:path";
+import sharp from "sharp";
 import { SITE } from "./config";
 
 export const OG_SIZE = { width: 1200, height: 630 };
@@ -19,6 +20,17 @@ export async function ogImage({ etiqueta, titol, linia, imatge }: {
   etiqueta: string; titol: string; linia?: string; imatge?: string | null;
 }) {
   const [slab, medium, regular] = await fonts;
+  const png = await render({ etiqueta, titol, linia, imatge, slab, medium, regular });
+  // JPEG comprimit: WhatsApp no mostra la vista prèvia si la imatge és massa pesada (PNG ≈ 1,5 MB)
+  const jpeg = await sharp(png).jpeg({ quality: 78, mozjpeg: true }).toBuffer();
+  return new Response(new Uint8Array(jpeg), {
+    headers: { "Content-Type": "image/jpeg", "Cache-Control": "public, max-age=300, s-maxage=3600, stale-while-revalidate=86400" },
+  });
+}
+
+async function render({ etiqueta, titol, linia, imatge, slab, medium, regular }: {
+  etiqueta: string; titol: string; linia?: string; imatge?: string | null; slab: Buffer; medium: Buffer; regular: Buffer;
+}) {
   const mida = titol.length > 60 ? 54 : titol.length > 38 ? 64 : 76;
   return new ImageResponse(
     (
@@ -54,5 +66,5 @@ export async function ogImage({ etiqueta, titol, linia, imatge }: {
         { name: "Roboto", data: regular, weight: 400, style: "normal" },
       ],
     },
-  );
+  ).arrayBuffer().then((b) => Buffer.from(b));
 }

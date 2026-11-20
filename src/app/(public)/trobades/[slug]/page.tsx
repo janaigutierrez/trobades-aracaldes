@@ -11,7 +11,8 @@ type Props = { params: Promise<{ slug: string }> };
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const t = await getTrobada((await params).slug);
   if (!t) return {};
-  const description = `${dataLlarga(t.inici)}, ${hora(t.inici)} h · ${t.lloc}. ${t.descripcio}`.slice(0, 200);
+  const completa = `${dataLlarga(t.inici)}, ${hora(t.inici)} h · ${t.lloc}. ${t.descripcio}`;
+  const description = completa.length <= 200 ? completa : completa.slice(0, 197).replace(/\s+\S*$/, "") + "…";
   return {
     title: t.titol,
     description,
