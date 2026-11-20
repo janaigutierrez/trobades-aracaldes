@@ -37,8 +37,8 @@ async function render({ etiqueta, titol, linia, imatge, slab, medium, regular }:
       <div style={{ width: "100%", height: "100%", display: "flex", position: "relative", fontFamily: "Roboto" }}>
         {/* eslint-disable-next-line @next/next/no-img-element */}
         <img src={imatge || SITE.fotoPerDefecte} alt="" width={1200} height={630}
-          style={{ position: "absolute", inset: 0, width: 1200, height: 630, objectFit: "cover" }} />
-        <div style={{ position: "absolute", inset: 0, display: "flex", background: "linear-gradient(90deg, rgba(0,0,0,.78) 0%, rgba(0,0,0,.55) 60%, rgba(0,0,0,.35) 100%)" }} />
+          style={{ position: "absolute", top: 0, left: 0, width: 1200, height: 630, objectFit: "cover" }} />
+        <div style={{ position: "absolute", top: 0, left: 0, width: 1200, height: 630, display: "flex", backgroundImage: "linear-gradient(90deg, rgba(0,0,0,0.82) 0%, rgba(0,0,0,0.62) 55%, rgba(0,0,0,0.4) 100%)" }} />
         <div style={{ position: "relative", display: "flex", flexDirection: "column", justifyContent: "space-between", padding: "56px 72px", width: "100%" }}>
           <div style={{ display: "flex", alignItems: "center" }}>
             <div style={{ display: "flex", background: "white", borderRadius: 6, padding: "10px 18px" }}>
