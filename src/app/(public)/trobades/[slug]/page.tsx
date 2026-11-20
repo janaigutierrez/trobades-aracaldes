@@ -10,7 +10,15 @@ type Props = { params: Promise<{ slug: string }> };
 
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const t = await getTrobada((await params).slug);
-  return t ? { title: t.titol, description: t.descripcio.slice(0, 160) } : {};
+  if (!t) return {};
+  const description = `${dataLlarga(t.inici)}, ${hora(t.inici)} h · ${t.lloc}. ${t.descripcio}`.slice(0, 200);
+  return {
+    title: t.titol,
+    description,
+    alternates: { canonical: `/trobades/${t.slug}` },
+    openGraph: { title: t.titol, description, url: `/trobades/${t.slug}`, siteName: "araCaldes · Trobades obertes", locale: "ca_ES", type: "website" },
+    twitter: { card: "summary_large_image", title: t.titol, description },
+  };
 }
 
 function Dada({ titol, children }: { titol: string; children: React.ReactNode }) {
