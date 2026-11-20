@@ -10,7 +10,7 @@ values
    'Volem escoltar els veïns i veïnes de Can Valls: mobilitat, serveis, manteniment i el futur de la urbanització. Una trobada oberta per construir junts el pla de futur per a Caldes.',
    'Can Valls', now() + interval '21 days', now() + interval '21 days 90 minutes',
    'Local social de Can Valls', 'Adreça de demostració',
-   60, true, true, 'https://www.youtube.com/embed/live_stream?channel=DEMO'),
+   60, true, true, null),
 
   ('xerrada-finances-municipals', 'xerrada', 'propera',
    'Xerrada: Les finances municipals, explicades',

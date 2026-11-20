@@ -6,8 +6,9 @@ su postgres -c "$BIN/initdb -D $PGDATA -A trust >/dev/null && $BIN/pg_ctl -D $PG
 P="psql -v ON_ERROR_STOP=1 -q -U postgres -h /tmp -p 5499"
 $P -c "create database t"
 $P -d t -f supabase/tests/supabase_stub.sql
+# Com Supabase: privilegis per defecte a anon/authenticated/service_role
+$P -d t -c "grant usage on schema public to anon, authenticated, service_role; alter default privileges in schema public grant all on tables to anon, authenticated, service_role; alter default privileges in schema public grant all on functions to anon, authenticated, service_role;"
 $P -d t -f supabase/schema.sql
-$P -d t -c "grant usage on schema public to anon, authenticated, service_role; grant all on all tables in schema public to anon, authenticated, service_role;"
 $P -d t -f supabase/seed.sql
 $P -d t -f supabase/tests/tests.sql
 su postgres -c "$BIN/pg_ctl -D $PGDATA stop >/dev/null"

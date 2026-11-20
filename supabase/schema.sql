@@ -37,7 +37,7 @@ stable
 security definer
 set search_path = public
 as $$
-  select exists (select 1 from admins where user_id = auth.uid());
+  select exists (select 1 from admins where user_id = (select auth.uid()));
 $$;
 
 -- ---------- Trobades -----------------------------------------------
@@ -116,10 +116,11 @@ create table aportacions (
 );
 
 create index aportacions_trobada_estat_idx on aportacions (trobada_id, estat);
+create index aportacions_moderada_per_idx on aportacions (moderada_per);
 
 -- ---------- updated_at automàtic -----------------------------------
 create or replace function set_updated_at()
-returns trigger language plpgsql as $$
+returns trigger language plpgsql set search_path = public as $$
 begin
   new.updated_at := now();
   return new;
@@ -134,7 +135,7 @@ create trigger trobades_updated_at
 -- Encara que les escriptures passin pel servidor, la BD rebutja
 -- inscripcions o aportacions a trobades tancades o plenes.
 create or replace function check_inscripcio()
-returns trigger language plpgsql as $$
+returns trigger language plpgsql set search_path = public as $$
 declare
   t trobades%rowtype;
   ocupades int;
@@ -159,7 +160,7 @@ create trigger inscripcions_check
   for each row execute function check_inscripcio();
 
 create or replace function check_aportacio()
-returns trigger language plpgsql as $$
+returns trigger language plpgsql set search_path = public as $$
 begin
   if not exists (select 1 from trobades where id = new.trobada_id and aportacions_obertes) then
     raise exception 'Les aportacions d''aquesta trobada estan tancades';
@@ -195,6 +196,7 @@ returns table (id uuid, tipus aportacio_tipus, text text, nom text, ordre_lectur
 language sql
 stable
 security invoker
+set search_path = public
 as $$
   select a.id, a.tipus, a.text, a.nom, a.ordre_lectura
   from aportacions a
@@ -208,6 +210,7 @@ create or replace function tancar_trobada(p_trobada uuid)
 returns void
 language plpgsql
 security invoker
+set search_path = public
 as $$
 begin
   if not is_admin() then
@@ -278,6 +281,12 @@ create policy aportacions_admin_all on aportacions
 revoke execute on function tancar_trobada(uuid)        from public, anon;
 revoke execute on function purgar_dades_personals(int) from public, anon, authenticated;
 revoke execute on function aportacions_per_llegir(uuid) from public, anon;
+revoke execute on function is_admin()                  from public, anon;
+grant  execute on function is_admin()                  to authenticated;
 grant  execute on function places_disponibles(uuid)    to anon, authenticated;
 grant  execute on function tancar_trobada(uuid)        to authenticated;
 grant  execute on function aportacions_per_llegir(uuid) to authenticated;
+
+-- Privilegis de taula: anon només pot llegir trobades (RLS ja ho limita; això ho amaga també de GraphQL)
+revoke all on table admins, inscripcions, aportacions from anon;
+revoke insert, update, delete, truncate, references, trigger on table trobades from anon;
